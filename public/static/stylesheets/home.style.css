@@ -27,6 +27,7 @@
 }
 .second a.button {
     color: #AAA;
+    display: block;
 }
 .second .button::after {
     content: "GET YOUR TICKETS NOW";
@@ -876,7 +877,7 @@ a.button:hover {
 
 .one {
     background: url('/static/images/landing/background.jpg') center;
-    background-size: 100% 100%;
+    background-size: cover;
 }
 .two {
     background: url('/static/images/landing/agence.jpg') center;
