@@ -33,14 +33,21 @@ function checkPermission(level) {
 }
 
 function service(model, router, permission) {
-	router.get('/', checkPermission(permission.read_all), function (req, res, next) {
-		var options = getOptions(req.query);
+	let methods = {};
+
+	methods.get = (options) => {
 		var promise;
-		if (req.query.page) {
+		if (options.page) {
 			promise = model.paginate({}, options);
 		} else {
 			promise = model.find({}, {}, options);
 		}
+		return promise;
+	};
+
+	router.get('/', checkPermission(permission.read_all), (req, res, next) => {
+		var options = getOptions(req.query);
+		promise = methods.get(options);
 		promise.then(data => {
 			res.json(data);
 		}).catch(err => {
@@ -73,19 +80,20 @@ function service(model, router, permission) {
 			res.send(item);
 		});
 	});
-
+	methods.post = (rawData) => {
+		let item = new model(rawData);
+		return item.save();
+	};
 	router.post('/', checkPermission(permission.insert), function (req, res, next) {
-		var item = new model(req.body);
-		item.save(function (err, data) {
-			if (err) {
-				console.log(err);
-				res.status(500).send(err);
-				return;
-			}
+		methods.post(req.body).then(data => {
 			res.send({
 				status: "Success",
 				data: data,
 			});
+		}).catch(err => {
+			console.log(err);
+			res.status(500).send(err);
+			return;
 		});
 	});
 
